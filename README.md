@@ -6,7 +6,7 @@ First, download the repository to your local machine.
 ## Step 2: Create a Local Virtual Environment
 Activate it by running:
 ```bash
-python -m venv /path/to/venv
+source /path/to/venv/bin/activate
 ```
 
 ## Step 3: Run the Main Program
