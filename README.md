@@ -13,7 +13,6 @@ source /path/to/venv/bin/activate
 Try to run the main program. Expected result: It should **FAIL**.
 
 ## Step 4: Install Dependencies
-Only completing the steps in ExProjUtils readme.
 Run the following command to install the necessary dependencies:
 bash
 ```bash
