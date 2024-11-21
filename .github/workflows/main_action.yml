@@ -1,0 +1,47 @@
+name: Run Main
+
+on:
+  workflow_dispatch:
+
+jobs:
+  execution_test_flows:
+    runs-on:
+      group: le-runners
+      labels: [ self-hosted, linux ]
+#    environment:
+#      name: ${{ inputs.environment }}
+
+#    env:
+#      ALLURE_REPORT_DIR: ${{ vars.ALLURE_REPORT_DIR }}
+#      ALLURE_REPORTS_VM_MAIN_PORT: ${{ vars.ALLURE_REPORTS_VM_MAIN_PORT }}
+#      S3CFG_CONFIG_FILE: ${{ secrets.S3CFG_CONFIG_FILE }}
+#      GATEWAY_HOST: ${{ secrets.GATEWAY_HOST }}
+#      PYTHON_VERSION: ${{ vars.PYTHON_VERSION }}
+
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.12.7"
+
+    - name: Checkout this repository
+      uses: actions/checkout@v2
+
+    - name: Checkout another repository
+      uses: actions/checkout@v2
+      with:
+        repository: islootsk/ExProjUtils.git
+
+    - name: Install requirements
+      run: |
+        la -ltrh
+        pip install -qr requirements.txt --no-cache-dir
+        
+      
+
+    - name: Run
+      run: |
+        python --version
+        python3 --version
+        python main.py
