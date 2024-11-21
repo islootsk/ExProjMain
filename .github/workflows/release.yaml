@@ -1,0 +1,40 @@
+name: 'Release'
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: 'Commit to use'
+        type: string
+        required: true
+      branch:
+        description: 'Vc branch to check the commits from'
+        type: string
+        required: true
+      skip_validation:
+        description: 'Skip validation'
+        type: boolean
+        required: true
+        default: false
+  workflow_call:
+    inputs:
+      commit:
+        description: 'Commit to use'
+        type: string
+        required: true
+      branch:
+        description: 'Vc branch to check the commits from'
+        type: string
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    uses: AkamaiETP/etp-reports-devops-tools/.github/workflows/reusable-release.yml@master
+    with:
+      commit: ${{ inputs.commit }}
+      branch: ${{ inputs.branch }}
+    secrets: inherit
+    

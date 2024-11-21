@@ -1,0 +1,29 @@
+name: 'Dev-freeze'
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_version:
+        description: 'Source version can be "master" or a Tag'
+        type: string
+        required: true
+        default: master
+  workflow_call:
+    inputs:
+      source_version:
+        description: 'Source version can be "master" or a Tag'
+        type: string
+        required: true
+        default: master
+
+permissions:
+  contents: write
+
+
+jobs:
+  dev-freeze:
+    uses: AkamaiETP/etp-reports-devops-tools/.github/workflows/reusable-dev-freeze.yml@master
+    with:
+      source_version: ${{ inputs.source_version }}
+    secrets: inherit
+    

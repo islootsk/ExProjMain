@@ -1,0 +1,68 @@
+name: Build and Push to GHCR
+
+env:
+  GHCR_CONTAINER_REGISTRY: "ghcr.io/akamaietp"
+  GHCR_CONTAINER_REPOSITORY: "aip-cop-automation"
+  GIT_USER_NAME: "etp-devops"
+  GIT_USER_EMAIL: "etp-devops@akamai.com"
+
+on:
+  push:
+    branches: [ master ]
+    paths-ignore:
+      - '.github/**'
+      - '.gitignore'
+      - 'README.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    name: Build and Push to GHCR
+    runs-on:
+      group: le-runners
+      labels: [self-hosted, linux, x64]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Set Image full name as env var
+      run: |
+        echo "IMAGE_FULL_NAME=${{ env.GHCR_CONTAINER_REGISTRY }}/${{ env.GHCR_CONTAINER_REPOSITORY }}" >> $GITHUB_ENV
+
+    - name: Set Image tag as env var
+      run: |
+        echo "IMAGE_TAG=$(cat ./VERSION)-$(date +'%y%m%d%H%M%S')-${GITHUB_SHA::8}" >> $GITHUB_ENV
+
+    - name: Wiz Scan
+      uses: AkamaiETP/etp-reports-devops-tools/.github/actions/wiz-scan@master
+      with:
+        wiz-client-id: ${{ secrets.WIZ_CLIENT_ID }}
+        wiz-client-secret: ${{ secrets.WIZ_CLIENT_SECRET }}
+
+    - name: Docker Build
+      shell: bash
+      run: |
+        echo "Using tag: ${{ env.IMAGE_TAG }}"
+        docker build -t ${{ env.IMAGE_FULL_NAME }}:${{ env.IMAGE_TAG }} -t ${{ env.IMAGE_FULL_NAME }}:latest .
+
+    - name: Wiz Image Scan
+      uses: AkamaiETP/etp-reports-devops-tools/.github/actions/wiz-image-scan@master
+      env:
+        IMAGE_TAG: "${{ env.IMAGE_FULL_NAME }}:${{ env.IMAGE_TAG }}"
+    
+    - name: Login to GHCR
+      uses: docker/login-action@v2
+      with:
+        registry: ${{ env.GHCR_CONTAINER_REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Docker Push
+      run: |
+        docker push ${{ env.IMAGE_FULL_NAME }}:${{ env.IMAGE_TAG }}
+        docker push ${{ env.IMAGE_FULL_NAME }}:latest
+        echo "::notice title=Last Deployed Image::${{ env.IMAGE_FULL_NAME }}:$IMAGE_TAG"
