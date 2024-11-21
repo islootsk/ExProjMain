@@ -4,20 +4,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  execution_test_flows:
-    runs-on:
-      group: le-runners
-      labels: [ self-hosted, linux ]
-#    environment:
-#      name: ${{ inputs.environment }}
-
-#    env:
-#      ALLURE_REPORT_DIR: ${{ vars.ALLURE_REPORT_DIR }}
-#      ALLURE_REPORTS_VM_MAIN_PORT: ${{ vars.ALLURE_REPORTS_VM_MAIN_PORT }}
-#      S3CFG_CONFIG_FILE: ${{ secrets.S3CFG_CONFIG_FILE }}
-#      GATEWAY_HOST: ${{ secrets.GATEWAY_HOST }}
-#      PYTHON_VERSION: ${{ vars.PYTHON_VERSION }}
-
+  main_action:
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
@@ -28,17 +16,23 @@ jobs:
     - name: Checkout this repository
       uses: actions/checkout@v2
 
-    - name: Checkout another repository
+    - name: Checkout this repository
       uses: actions/checkout@v2
-      with:
-        repository: islootsk/ExProjUtils.git
+
+    - name: Clone another repository
+      env:
+        PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+      run: |
+          git clone https://github.com/islootsk/ExProjUtils.git
+
+    - name: ls folder
+      run: |
+        ls -ltrh
 
     - name: Install requirements
       run: |
-        la -ltrh
-        pip install -qr requirements.txt --no-cache-dir
-        
-      
+        pip install -e ExProjUtils
+
 
     - name: Run
       run: |
